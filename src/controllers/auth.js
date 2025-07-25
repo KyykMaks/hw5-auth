@@ -4,10 +4,12 @@ import { loginUser, logoutUser, refreshUserSessino, registerUser } from "../serv
 export const registerUserController = async(req, res) =>{
     const user = await registerUser(req.body);
 
+    const {password, ...userPassword} = user.toObject()
+
     res.status(201).json({
         status: 201,
         message: 'Successfully registered a user!',
-        data:user,
+        data: userPassword,
     })
 }
 

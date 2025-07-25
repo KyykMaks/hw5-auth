@@ -2,25 +2,26 @@ import { SORT_ORDER } from '../constants/index.js';
 import { Contact} from '../models/Contacts.js';
 import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
-export const getContactById = async (contactId) => {
-  return await Contact.findById(contactId);
+export const getContactById = async (contactId, userId) => {
+  return await Contact.findOne({_id:contactId, userId});
 };
 
-export const createContact = async (payload) => {
-  return await Contact.create(payload);
+export const createContact = async (payload,userId) => {
+  return await Contact.create({...payload,userId});
 };
 
-export const deleteContact = async (contactId) => {
+export const deleteContact = async (contactId,userId) => {
   const contact = await Contact.findOneAndDelete({
     _id: contactId,
+    userId,
   });
 
   return contact;
 };
 
-export const updateContact = async (contactId, payload, options = {}) => {
+export const updateContact = async (contactId, payload,userId, options = {}) => {
   const rawResult = await Contact.findOneAndUpdate(
-    { _id: contactId },
+    { _id: contactId,userId },
     payload,
     { new: true, includeResultMetadata: true, ...options },
   );
@@ -47,7 +48,10 @@ export const getAllContact = async ({
     contactsQuery.where('contactType').equals(filter.contactType);
   }
   if (typeof filter.isFavourite === 'boolean'){
-    contactsQuery.where('isFavourite').equals(filter.isFavourite)
+    contactsQuery.where('isFavourite').equals(filter.isFavourite);
+  }
+  if(filter.userId) {
+    contactsQuery.where('userId').equals(filter.userId)
   }
 
   const [contactsCount, contacts] = await Promise.all([
